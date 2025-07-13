@@ -1,0 +1,134 @@
+Here is a complete deliverable for a Simple Synchronous RAM in Verilog, including:
+
+✅ RAM Code
+
+🧪 RAM Testbench
+
+🖥️ Simulation Description (how it demonstrates functionality)
+
+✅ 1. Synchronous RAM Code (sync_ram.v)
+verilog
+Copy
+Edit
+module sync_ram #(
+    parameter DATA_WIDTH = 8,
+    parameter ADDR_WIDTH = 4
+)(
+    input wire clk,
+    input wire we,                          // Write Enable
+    input wire [ADDR_WIDTH-1:0] addr,       // Address
+    input wire [DATA_WIDTH-1:0] din,        // Data Input
+    output reg [DATA_WIDTH-1:0] dout        // Data Output
+);
+
+    // Declare RAM memory array
+    reg [DATA_WIDTH-1:0] mem [0:(1<<ADDR_WIDTH)-1];
+
+    // Synchronous Read/Write Process
+    always @(posedge clk) begin
+        if (we)
+            mem[addr] <= din;      // Write operation
+        else
+            dout <= mem[addr];     // Read operation
+    end
+
+endmodule
+🧪 2. Testbench (tb_sync_ram.v)
+verilog
+Copy
+Edit
+`timescale 1ns / 1ps
+
+module tb_sync_ram;
+
+    parameter DATA_WIDTH = 8;
+    parameter ADDR_WIDTH = 4;
+
+    // Testbench signals
+    reg clk;
+    reg we;
+    reg [ADDR_WIDTH-1:0] addr;
+    reg [DATA_WIDTH-1:0] din;
+    wire [DATA_WIDTH-1:0] dout;
+
+    // Instantiate the RAM
+    sync_ram #(
+        .DATA_WIDTH(DATA_WIDTH),
+        .ADDR_WIDTH(ADDR_WIDTH)
+    ) uut (
+        .clk(clk),
+        .we(we),
+        .addr(addr),
+        .din(din),
+        .dout(dout)
+    );
+
+    // Clock generator
+    always #5 clk = ~clk;
+
+    // Test procedure
+    initial begin
+        // Initialize signals
+        clk = 0;
+        we = 0;
+        addr = 0;
+        din = 0;
+
+        // Wait for global reset
+        #10;
+
+        // Write to RAM
+        we = 1;
+        addr = 4'h3;
+        din = 8'hAA;
+        #10;
+
+        addr = 4'h4;
+        din = 8'h55;
+        #10;
+
+        addr = 4'hF;
+        din = 8'hFF;
+        #10;
+
+        // Stop writing
+        we = 0;
+
+        // Read from RAM
+        addr = 4'h3;
+        #10;
+
+        addr = 4'h4;
+        #10;
+
+        addr = 4'hF;
+        #10;
+
+        addr = 4'h0;
+        #10;
+
+        $finish;
+    end
+
+endmodule
+🖥️ 3. Simulation Description
+You can simulate this design using tools like ModelSim, Vivado, or Icarus Verilog.
+
+Example using Icarus Verilog:
+bash
+Copy
+Edit
+iverilog -o ram_sim sync_ram.v tb_sync_ram.v
+vvp ram_sim
+Expected Output (from simulation waveform or dout changes):
+Cycle	we	addr	din	dout	Description
+1	1	0x3	0xAA	X	Write 0xAA to address 3
+2	1	0x4	0x55	X	Write 0x55 to address 4
+3	1	0xF	0xFF	X	Write 0xFF to address F
+4	0	0x3	--	0xAA	Read from address 3
+5	0	0x4	--	0x55	Read from address 4
+6	0	0xF	--	0xFF	Read from address F
+7	0	0x0	--	???	Read from uninitialized address 0
+
+You can view these results in waveform format (.vcd) using GTKWave.
+
