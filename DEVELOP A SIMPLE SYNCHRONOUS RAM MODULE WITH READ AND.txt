@@ -1,0 +1,57 @@
+module sync_ram #(
+    parameter DATA_WIDTH = 8,
+    parameter ADDR_WIDTH = 4
+)(
+    input wire clk,
+    input wire we,                  // Write Enable
+    input wire [ADDR_WIDTH-1:0] addr, // Address
+    input wire [DATA_WIDTH-1:0] din,  // Data Input (for write)
+    output reg [DATA_WIDTH-1:0] dout  // Data Output (for read)
+);
+
+    // Memory array declaration
+    reg [DATA_WIDTH-1:0] mem [0:(1<<ADDR_WIDTH)-1];
+
+    always @(posedge clk) begin
+        if (we) begin
+            // Write operation
+            mem[addr] <= din;
+        end else begin
+            // Read operation
+            dout <= mem[addr];
+        end
+    end
+
+endmodule
+   
+
+
+
+
+
+
+
+📘 Explanation:
+clk: Clock signal for synchronization.
+
+we: Write Enable — if high, data is written to RAM.
+
+addr: Address line to access memory location.
+
+din: Data input for write operation.
+
+dout: Data output for read operation.
+
+mem: Memory array of configurable width and depth.
+
+🧪 Example Configuration:
+DATA_WIDTH = 8 → 8-bit data
+
+ADDR_WIDTH = 4 → 16 memory locations (2⁴)
+
+Would you like a testbench to simulate this RAM?
+
+
+
+
+Ask ChatGPT
